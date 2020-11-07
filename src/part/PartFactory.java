@@ -3,7 +3,10 @@ package part;
 import org.eclipse.gef.EditPart;
 import org.eclipse.gef.EditPartFactory;
 
+import model.ArrowConnectionModel;
+import model.ContentsModel;
 import model.HelloModel;
+import model.LineConnectionModel;
 
 public class PartFactory implements EditPartFactory {
 
@@ -15,8 +18,17 @@ public class PartFactory implements EditPartFactory {
      */
     private EditPart getPartForElement(Object modelElement) {
         //第一步，根据模型类创建其控制器
-        if (modelElement instanceof HelloModel)
+    	if(modelElement instanceof ContentsModel) {
+    		return new ContentsEditPart();
+    	}
+    	else if (modelElement instanceof HelloModel)
             return new HelloEditorPart();
+    	else if(modelElement instanceof LineConnectionModel) {
+    		return new LineConnectionEditPart();
+    	}
+    	else if(modelElement instanceof ArrowConnectionModel) {
+    		return new ArrowConnectionEditPart();
+    	}
         throw new RuntimeException(
                 "Can't create part for model element: "
                         + ((modelElement != null) ? modelElement.getClass().getName() : "null"));

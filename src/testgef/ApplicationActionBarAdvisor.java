@@ -52,11 +52,8 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
         menuBar.add(helpMenu);
 	}
 	
-	@Override
-	protected void fillCoolBar(ICoolBarManager coolBar) {
-		IToolBarManager toolbar = new ToolBarManager(coolBar.getStyle());
-        coolBar.add(toolbar);
-	}
+	
+
 
 }
 

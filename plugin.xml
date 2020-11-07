@@ -23,6 +23,7 @@
          point="org.eclipse.ui.editors">
       <editor
             class="view.DiagramEditor"
+            contributorClass="action.DiagramActionBarContributor"
             default="false"
             icon="icons/eclipse16.png"
             id="testGEF.DiagramEditor"

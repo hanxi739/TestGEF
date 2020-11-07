@@ -3,9 +3,9 @@ package constant;
 public interface IImageConstant {
 	public static final String EDITORTITLE = "icons/example.gif";
 
-    public static final String NEWHELLOMODEL = "icons/newModel.gif";
+    public static final String COMPONENT = "icons/component16.png";
 
-    public static final String NEWCONNECTION = "icons/newConnection.gif";
+    public static final String LINECONNECTION = "icons/line16.png";
 
-    public static final String ARROWCONNECTION = "icons/arrowConnection.gif";
+    public static final String ARROWCONNECTION = "icons/arrow16.png";
 }
