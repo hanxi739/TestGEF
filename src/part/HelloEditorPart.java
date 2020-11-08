@@ -1,8 +1,10 @@
 package part;
 
 import java.beans.PropertyChangeEvent;
+import java.util.EventObject;
 import java.util.List;
 
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.draw2d.Border;
 import org.eclipse.draw2d.ChopboxAnchor;
 import org.eclipse.draw2d.ColorConstants;
@@ -22,6 +24,7 @@ import org.eclipse.gef.Request;
 import org.eclipse.gef.RequestConstants;
 import org.eclipse.gef.tools.DirectEditManager;
 import org.eclipse.jface.viewers.TextCellEditor;
+import org.eclipse.ui.IEditorPart;
 
 import model.HelloModel;
 import policies.CustomComponentEditPolicy;
@@ -125,4 +128,5 @@ public class HelloEditorPart extends EditPartWithListener implements NodeEditPar
 		return new ChopboxAnchor(getFigure());
 	}
 
+	
 }
