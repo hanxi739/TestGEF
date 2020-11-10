@@ -19,7 +19,6 @@ public class CustomXYLayoutEditPolicy extends XYLayoutEditPolicy {
 		CreateCommand command = new CreateCommand();
 		Rectangle constraint = (Rectangle)getConstraintFor(request);//产生创建图形的尺寸和位置
 		ComponentModel model = (ComponentModel) request.getNewObject();//获得新创建的图形 
-		System.out.println(model);
 		Object type = request.getNewObjectType();
 		model.setConstraint(constraint);//为该图形设置前面获得的位置和尺寸
 		

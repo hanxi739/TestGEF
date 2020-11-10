@@ -25,7 +25,6 @@ public  class ResolveXML {
 			SAXReader reader = new SAXReader();
 			Document document = reader.read("components.xml");
 			Element components = document.getRootElement();
-			System.out.println("根节点名称："+components.getName());
 			List<Element> componentList = components.elements();
 			
 			String componentId,status,category,codeLocation,resourceUsed,type,name,value,type1,note;
@@ -66,7 +65,7 @@ public  class ResolveXML {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		//System.out.println(compoList.size());
+		
 		return compoList;
 	}
 	

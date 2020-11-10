@@ -94,13 +94,10 @@ public class DiagramEditor extends GraphicalEditorWithPalette {
 		parent =  new ContentsModel();
 		//viewer.setContents(new HelloModel());//第二步,设置GraphicalViewer中显示的内容
 		//ContentsModel parent = new ContentsModel();
-		
+		/*
 		//不知道为什么这里添加了矩形约束后才显示的图形，上一步结束后没有显示
 		List<String> ids = new ArrayList<String>();
 		ids = getComponentIDs();
-		for(String id:ids) {
-			System.out.println(id);
-		}
 		List <Property> pros = resolve.getPropertyList(ids.get(0));
 		ComponentModel child0 = new ComponentModel(pros);//创建一个子模型
 		child0.setConstraint(new Rectangle(-1,-1,250,80));//长宽设置为-1可以使矩形随着里面的文字变化大小
@@ -116,6 +113,7 @@ public class DiagramEditor extends GraphicalEditorWithPalette {
 		ComponentModel child2 = new ComponentModel(pros2);//创建一个子模型
 		child2.setConstraint(new Rectangle(300,400,250,80));//长宽设置为-1可以使矩形随着里面的文字变化大小
 		parent.addChild(child2);//将子模型添加到父模型中
+		*/
 		viewer.setContents(parent);
 	}
 	
@@ -183,7 +181,7 @@ public class DiagramEditor extends GraphicalEditorWithPalette {
               sourceConnections =  node.getModelSourceConnections();
               targetConnections =  node.getModelTargetConnections();
             //遍历把这个节点作为target的连线的集合，由此可以得到该节点对应的所有输入端口
-              System.out.print(node+"的输入端口有：");
+              System.out.print(node+"的输入节点有：");
               if(targetConnections.size()==0) {
                 System.out.println(0);
               }
@@ -194,7 +192,7 @@ public class DiagramEditor extends GraphicalEditorWithPalette {
                }
               
             //遍历把这个节点作为source的连线的集合，由此可以得到该节点对应的所有输出端口
-              System.out.print(node+"的输出端口有：");
+              System.out.print(node+"的输出节点有：");
               if(sourceConnections.size()==0) {
                 System.out.println(0);
               }

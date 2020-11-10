@@ -19,9 +19,7 @@ public class ComponentModel extends AbstractModel{
 	
 	
 	public static final String P_CONSTRAINT = "_constraint";//通过字符串来辨识改变的属性种类
-	public static final String P_TEXT = "_text";//添加字符串的ID，这样改变图形的文本时可以通知其EditPart
-	public static final String P_STATUS = "_code";//添加字符串的ID，这样改变图形的文本时可以通知其EditPart
-	public static final String P_PARA = "_id";//添加字符串的ID，这样改变图形的文本时可以通知其EditPart
+
 	
 	//connection:管理连接信息//////////////////////////////
 	public static final String P_SOURCE_CONNECTION="_source_connection";
@@ -141,12 +139,20 @@ public class ComponentModel extends AbstractModel{
     public Object getPropertyValue(Object id) {
     	if((Integer)id<propertyList.size()) {
     		if(propertyList.get((Integer)id).getType()==2) {//ComboBox返回的是序号需要转换为Integer类型。否则可能不显示可选条目。
-    			return 0;
+    			Property pro = propertyList.get((Integer)id);
+    			String value = pro.getValue();
+    			String [] values =pro.getNote().split(";"); 
+    			int index = 0;
+    			for(int i=0;i<values.length;i++) {
+    				if(value.equals(values[i])) {
+    					index = i;
+    				}
+    			}
+    			return index;
     		}
     		else {
     			return propertyList.get((Integer)id).getValue();
     		}
-    		
     	}
     	return null;
     }
@@ -169,7 +175,10 @@ public class ComponentModel extends AbstractModel{
     			Property pro = propertyList.get((Integer)id);
         		pro.setValue((String)value);
         		propertyList.set((Integer)id, pro);
-    		}    		
+    		}
+    		for(Property pro:propertyList) {
+    			System.out.println(pro.getName()+":"+pro.getValue());
+    		}
     	}
     }
     

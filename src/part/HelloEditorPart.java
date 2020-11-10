@@ -60,7 +60,6 @@ public class HelloEditorPart extends EditPartWithListener implements NodeEditPar
 	@Override
 	protected IFigure createFigure() {
 		ComponentModel model = (ComponentModel)getModel();
-		System.out.println("model里面getmodel():"+model);
 		Label label = new Label();
 		label.setText(model.getPropertyList().get(0).getValue());
 		//设置标签颜色
@@ -88,10 +87,11 @@ public class HelloEditorPart extends EditPartWithListener implements NodeEditPar
 		if(event.getPropertyName().equals(ComponentModel.P_CONSTRAINT)) {//the model of change show change of the position on a model
 			refreshVisuals();//更新视图
 		}
+		/*
 		else if(event.getPropertyName().equals(ComponentModel.P_TEXT)) {//当图形模型的文本属性改变时，在Graphical Editor中的图形文本也改变
 			Label label = (Label)getFigure();
 			label.setText((String)event.getNewValue());
-		}
+		}*/
 		else if(event.getPropertyName().equals(ComponentModel.P_SOURCE_CONNECTION)) {//refreshSourceConnections();和refreshTargetConnections();暗地里调用getModelSourceConnections()和target...
 			refreshSourceConnections();
 		}
