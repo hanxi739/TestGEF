@@ -5,7 +5,7 @@ import org.eclipse.gef.EditPartFactory;
 
 import model.ArrowConnectionModel;
 import model.ContentsModel;
-import model.HelloModel;
+import model.ComponentModel;
 import model.LineConnectionModel;
 
 public class PartFactory implements EditPartFactory {
@@ -21,7 +21,7 @@ public class PartFactory implements EditPartFactory {
     	if(modelElement instanceof ContentsModel) {
     		return new ContentsEditPart();
     	}
-    	else if (modelElement instanceof HelloModel)
+    	else if (modelElement instanceof ComponentModel)
             return new HelloEditorPart();
     	else if(modelElement instanceof LineConnectionModel) {
     		return new LineConnectionEditPart();

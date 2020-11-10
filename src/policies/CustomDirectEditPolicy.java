@@ -5,7 +5,7 @@ import org.eclipse.gef.editpolicies.DirectEditPolicy;
 import org.eclipse.gef.requests.DirectEditRequest;
 
 import commands.DirectEditCommand;
-
+/*
 public class CustomDirectEditPolicy extends DirectEditPolicy {
 
 	@Override
@@ -26,3 +26,4 @@ public class CustomDirectEditPolicy extends DirectEditPolicy {
 	}
 
 }
+*/

@@ -26,9 +26,9 @@ import org.eclipse.gef.tools.DirectEditManager;
 import org.eclipse.jface.viewers.TextCellEditor;
 import org.eclipse.ui.IEditorPart;
 
-import model.HelloModel;
+import model.ComponentModel;
 import policies.CustomComponentEditPolicy;
-import policies.CustomDirectEditPolicy;
+
 import policies.CustomGraphicalNodeEditPolicy;
 
 public class HelloEditorPart extends EditPartWithListener implements NodeEditPart{
@@ -59,9 +59,10 @@ public class HelloEditorPart extends EditPartWithListener implements NodeEditPar
 	*/
 	@Override
 	protected IFigure createFigure() {
-		HelloModel model = (HelloModel)getModel();
+		ComponentModel model = (ComponentModel)getModel();
+		System.out.println("model里面getmodel():"+model);
 		Label label = new Label();
-		label.setText(model.getText());
+		label.setText(model.getPropertyList().get(0).getValue());
 		//设置标签颜色
 		//label.setBorder(new CompoundBorder(new LineBorder(), new MarginBorder(5)));
 		label.setBorder(new SimpleRaisedBorder(5));//draw2d的border修改label的样式
@@ -79,32 +80,32 @@ public class HelloEditorPart extends EditPartWithListener implements NodeEditPar
 	}
 	
 	protected void refreshVisuals() {
-		Rectangle constraint = ((HelloModel)getModel()).getConstraint();
+		Rectangle constraint = ((ComponentModel)getModel()).getConstraint();
 		((GraphicalEditPart) getParent()).setLayoutConstraint(this,getFigure(),constraint);
 	}
 	
 	public void propertyChange(PropertyChangeEvent event) {
-		if(event.getPropertyName().equals(HelloModel.P_CONSTRAINT)) {//the model of change show change of the position on a model
+		if(event.getPropertyName().equals(ComponentModel.P_CONSTRAINT)) {//the model of change show change of the position on a model
 			refreshVisuals();//更新视图
 		}
-		else if(event.getPropertyName().equals(HelloModel.P_TEXT)) {//当图形模型的文本属性改变时，在Graphical Editor中的图形文本也改变
+		else if(event.getPropertyName().equals(ComponentModel.P_TEXT)) {//当图形模型的文本属性改变时，在Graphical Editor中的图形文本也改变
 			Label label = (Label)getFigure();
 			label.setText((String)event.getNewValue());
 		}
-		else if(event.getPropertyName().equals(HelloModel.P_SOURCE_CONNECTION)) {//refreshSourceConnections();和refreshTargetConnections();暗地里调用getModelSourceConnections()和target...
+		else if(event.getPropertyName().equals(ComponentModel.P_SOURCE_CONNECTION)) {//refreshSourceConnections();和refreshTargetConnections();暗地里调用getModelSourceConnections()和target...
 			refreshSourceConnections();
 		}
-		else if(event.getPropertyName().equals(HelloModel.P_TARGET_CONNECTION)) {
+		else if(event.getPropertyName().equals(ComponentModel.P_TARGET_CONNECTION)) {
 			refreshTargetConnections();
 		}
 	}
 	
 	protected List getModelSourceConnections() {
-		return ((HelloModel)getModel()).getModelSourceConnections();//重写这个方法，看起来是用一个对象调用这个方法，将这个操作简单化一些
+		return ((ComponentModel)getModel()).getModelSourceConnections();//重写这个方法，看起来是用一个对象调用这个方法，将这个操作简单化一些
 	}
 	
 	protected List getModelTargetConnections() {
-		return ((HelloModel)getModel()).getModelTargetConnections();
+		return ((ComponentModel)getModel()).getModelTargetConnections();
 	}
 //HelloEditPart就是用于管理连接的锚点Anchor的。缺省情况下，使用的是org.eclipse.draw2d.ChopboxAnchor锚点。这样，我们就看到了一些情况：连接LineConnectionModel不是直接和节点相连的，而是通过锚点和节点联系起来的。
 	//不是很懂，为什么四个函数的返回都是一样的呢，返回的是什么

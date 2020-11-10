@@ -8,12 +8,12 @@ import org.eclipse.gef.commands.Command;
 
 import model.AbstractConnectionModel;
 import model.ContentsModel;
-import model.HelloModel;
+import model.ComponentModel;
 
 public class CreateCommand extends Command {
 
 	private ContentsModel contentsModel;
-	private HelloModel helloModel;
+	private ComponentModel helloModel;
 	
 	public void execute() {
 
@@ -50,7 +50,7 @@ public class CreateCommand extends Command {
 	}
 	
 	public void setHelloModel(Object model) {
-		helloModel = (HelloModel)model;
+		helloModel = (ComponentModel)model;
 	}
 	
 	@Override

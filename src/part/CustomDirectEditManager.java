@@ -5,14 +5,14 @@ import org.eclipse.gef.tools.CellEditorLocator;
 import org.eclipse.gef.tools.DirectEditManager;
 import org.eclipse.swt.widgets.Text;
 
-import model.HelloModel;
-
+import model.ComponentModel;
+/*
 public class CustomDirectEditManager extends DirectEditManager {
 
-	private HelloModel helloModel;//要修改该模型的文本属性
+	private ComponentModel helloModel;//要修改该模型的文本属性
 	public CustomDirectEditManager(GraphicalEditPart source, Class editorType, CellEditorLocator locator) {
 		super(source, editorType, locator);
-		helloModel = (HelloModel)source.getModel();//获得HelloModel模型，在后面的initCellEditor()中将HelloModel的文本值设为cell editor的初始值
+		helloModel = (ComponentModel)source.getModel();//获得HelloModel模型，在后面的initCellEditor()中将HelloModel的文本值设为cell editor的初始值
 	}
 
 	@Override
@@ -23,3 +23,4 @@ public class CustomDirectEditManager extends DirectEditManager {
 	}
 
 }
+*/

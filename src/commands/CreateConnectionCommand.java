@@ -3,10 +3,10 @@ package commands;
 import org.eclipse.gef.commands.Command;
 
 import model.AbstractConnectionModel;
-import model.HelloModel;
+import model.ComponentModel;
 
 public class CreateConnectionCommand extends Command {
-	private HelloModel source,target;//两个模型一个用于起点，一个用于终点
+	private ComponentModel source,target;//两个模型一个用于起点，一个用于终点
 	private AbstractConnectionModel connection;//连接的模型
 	
 	//首先判断能否执行连接
@@ -31,12 +31,12 @@ public class CreateConnectionCommand extends Command {
 	}
 	
 	public void setSource(Object model) {
-		source = (HelloModel)model;
+		source = (ComponentModel)model;
 		connection.setSource(source);
 	}
 	
 	public void setTarget(Object model) {
-		target = (HelloModel)model;
+		target = (ComponentModel)model;
 		connection.setTarget(target);
 	}
 	

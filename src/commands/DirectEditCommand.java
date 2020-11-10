@@ -2,13 +2,13 @@ package commands;
 
 import org.eclipse.gef.commands.Command;
 
-import model.HelloModel;
+import model.ComponentModel;
 
 public class DirectEditCommand extends Command {
 
 	private String oldText,newText;
-	private HelloModel helloModel;
-	
+	private ComponentModel helloModel;
+	/*
 	@Override
 	public void execute() {
 		oldText = helloModel.getText();//记录旧文本
@@ -17,7 +17,7 @@ public class DirectEditCommand extends Command {
 	
 	
 	public void setModel(Object model) {
-		helloModel = (HelloModel)model;
+		helloModel = (ComponentModel)model;
 	}
 	
 	public void setText(String text) {
@@ -28,4 +28,6 @@ public class DirectEditCommand extends Command {
 	public void undo() {
 		helloModel.setText(oldText);
 	}
+	
+	*/
 }

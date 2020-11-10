@@ -7,10 +7,52 @@ import java.util.Map;
 public class Component extends AbstractModel {
 
 	private String id;
-	private String name;
-	private Map prop_value;//该如何存储一个长度不定的属性名-属性值表呢
-	protected List inputPorts = new ArrayList(6);//记录输入端口
-	protected List outputPorts = new ArrayList(6);//记录输出端口连接的其他端口，6代表最多连6个组件
+	private String status;
+	private List<ResourceInfo> resourceInfoList;
+	private List<Parameter> paraList;
     
+//--------------------------------------需要设置和获得的参数信息------------------------------------
+    
+
+ 
+	public String getId() {
+		return id;
+	}
+
+	public Component(String id, String status, List<ResourceInfo> resourceInfoList, List<Parameter> paraList) {
+	super();
+	this.id = id;
+	this.status = status;
+	this.resourceInfoList = resourceInfoList;
+	this.paraList = paraList;
+}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+	public List<ResourceInfo> getResourceInfoList() {
+		return resourceInfoList;
+	}
+
+	public void setResourceInfoList(List<ResourceInfo> resourceInfoList) {
+		this.resourceInfoList = resourceInfoList;
+	}
+
+	public List<Parameter> getParaList() {
+		return paraList;
+	}
+
+	public void setParaList(List<Parameter> paraList) {
+		this.paraList = paraList;
+	}
 	
 }

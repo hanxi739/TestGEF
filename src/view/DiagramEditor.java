@@ -30,30 +30,46 @@ import org.eclipse.gef.ui.parts.GraphicalEditor;
 import org.eclipse.gef.ui.parts.GraphicalEditorWithPalette;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 import constant.IImageConstant;
 import model.AbstractConnectionModel;
 import model.ArrowConnectionModel;
+import model.Component;
 import model.ContentsModel;
-import model.HelloModel;
+import model.ComponentModel;
 import model.LineConnectionModel;
+import model.Property;
+import part.CustomSimpleFactory;
 import part.PartFactory;
 import testgef.Application;
+import tools.ResolveXML;
 
 public class DiagramEditor extends GraphicalEditorWithPalette {
 	public static final String EDITOR_ID = "testGEF.DiagramEditor";
-	Rectangle rec = new Rectangle(-1,-1,80,50);
 	GraphicalViewer viewer;//绘制、显示图形
 	private ContentsModel parent ;
+	private ResolveXML resolve ;
+	private List<String> componentIDs = new ArrayList<String>();//存储组件库里的所有模型
+	
 	public DiagramEditor() {
 		setEditDomain(new DefaultEditDomain(this));
 	}
-	
+
+	public List<String> getComponentIDs() {
+		return componentIDs;
+	}
+
+	public void setComponentIDs(List<String> componentIDs) {
+		this.componentIDs = componentIDs;
+	}
+
 	protected void configureGraphicalViewer() {//第一步，把模型和控制器在视图GraphicalViewer中连接起来
 		super.configureGraphicalViewer();
 		viewer = getGraphicalViewer();
+		//viewer.getControl().setBackground(new Color(null, 200 , 200 , 200));
 		
 		//----------------------9.1提供图形的缩放功能---------------------------------
 		/*首先设置根图形的RootEditPart为ScalableRootEditPart（具有缩放功能的），那么依附于此的所有子图形都具有了缩放能力。
@@ -71,19 +87,35 @@ public class DiagramEditor extends GraphicalEditorWithPalette {
 		getActionRegistry().registerAction(action);
 		
 		viewer.setEditPartFactory(new PartFactory());
+		
 	}
 
 	protected void initializeGraphicalViewer() {
 		parent =  new ContentsModel();
 		//viewer.setContents(new HelloModel());//第二步,设置GraphicalViewer中显示的内容
 		//ContentsModel parent = new ContentsModel();
-		/*
-		//不知道为什么这里添加了矩形约束后才显示的图形，上一步结束后没有显示
 		
-		HelloModel child0 = new HelloModel();//创建一个子模型
-		child0.setConstraint(rec);//长宽设置为-1可以使矩形随着里面的文字变化大小
+		//不知道为什么这里添加了矩形约束后才显示的图形，上一步结束后没有显示
+		List<String> ids = new ArrayList<String>();
+		ids = getComponentIDs();
+		for(String id:ids) {
+			System.out.println(id);
+		}
+		List <Property> pros = resolve.getPropertyList(ids.get(0));
+		ComponentModel child0 = new ComponentModel(pros);//创建一个子模型
+		child0.setConstraint(new Rectangle(-1,-1,250,80));//长宽设置为-1可以使矩形随着里面的文字变化大小
 		parent.addChild(child0);//将子模型添加到父模型中
-		*/
+	
+		List <Property> pros1 = resolve.getPropertyList(ids.get(1));
+		ComponentModel child1 = new ComponentModel(pros1);//创建一个子模型
+		child1.setConstraint(new Rectangle(180,200,250,80));//长宽设置为-1可以使矩形随着里面的文字变化大小
+		parent.addChild(child1);//将子模型添加到父模型中
+		
+		
+		List <Property> pros2 = resolve.getPropertyList(ids.get(2));
+		ComponentModel child2 = new ComponentModel(pros2);//创建一个子模型
+		child2.setConstraint(new Rectangle(300,400,250,80));//长宽设置为-1可以使矩形随着里面的文字变化大小
+		parent.addChild(child2);//将子模型添加到父模型中
 		viewer.setContents(parent);
 	}
 	
@@ -126,16 +158,25 @@ public class DiagramEditor extends GraphicalEditorWithPalette {
 	@SuppressWarnings("unchecked")//?什么意思
 
 	//-----------------------------dirty check--------------------------
+	
+	public boolean isDirty() {
+		return getCommandStack().isDirty();//返回true时在文档前面加一个*表示dirty
+	}
+	
+	public void commandStackChanged(EventObject event) {
+		firePropertyChange(IEditorPart.PROP_DIRTY);
+		super.commandStackChanged(event);
+	}
 	@Override
 	public void doSave(IProgressMonitor monitor) {
 		getCommandStack().markSaveLocation();
-		//-----------------------------------获得配置文件信息----------------------------------
+		//-----------------------------------获得diagram的节点及连接信息----------------------------------
 		  ContentsModel diagram =parent; //如何获得父模型对象呢？
-          List<HelloModel> nodes = new  ArrayList<HelloModel>();
+          List<ComponentModel> nodes = new  ArrayList<ComponentModel>();
           nodes = diagram.getChildren();
           int nodeCount = nodes.size();//节点的个数
           System.out.println(diagram+"的子节点有"+nodeCount+"个"+"分别是：");
-          for(HelloModel node:nodes) {
+          for(ComponentModel node:nodes) {
               System.out.println(node);
               List<AbstractConnectionModel>  sourceConnections = new  ArrayList<AbstractConnectionModel>();//把这个节点作为source的连线的集合，由此可以得到该节点对应的所有输出端口
               List<AbstractConnectionModel>  targetConnections = new  ArrayList<AbstractConnectionModel>();//把这个节点作为target的连线的集合，由此可以得到该节点对应的所有输入端口
@@ -148,7 +189,7 @@ public class DiagramEditor extends GraphicalEditorWithPalette {
               }
               for(int inputNum=0;  inputNum<targetConnections.size();inputNum++) {
                 AbstractConnectionModel connection =  (AbstractConnectionModel)  targetConnections.get(inputNum);
-                HelloModel model_connx =  connection.getTarget();
+                ComponentModel model_connx =  connection.getTarget();
                 System.out.println(model_connx);
                }
               
@@ -159,28 +200,19 @@ public class DiagramEditor extends GraphicalEditorWithPalette {
               }
                for(int outputNum=0;  outputNum<sourceConnections.size();outputNum++) {
                     AbstractConnectionModel connection =  (AbstractConnectionModel)  sourceConnections.get(outputNum);
-                HelloModel model_connx =  connection.getTarget();
+                ComponentModel model_connx =  connection.getTarget();
                 System.out.println(model_connx);
                }
           }
          
 	}
-		
-	public boolean isDirty() {
-		return getCommandStack().isDirty();//返回true时在文档前面加一个*表示dirty
-	}
-	
-	public void commandStackChanged(EventObject event) {
-		firePropertyChange(IEditorPart.PROP_DIRTY);
-		super.commandStackChanged(event);
-	}
-	
-	
-//---------------------------------------------------------------------------------
+
+//----------------------------------------初始化palette----------------------------------
 	@Override
 	protected PaletteRoot getPaletteRoot() {
+		resolve = new ResolveXML();
+		setComponentIDs(resolve.getComponnetsId());
 		// 后面要重载的方法，在Palette中加上tools
-		
 		//（1）首先要创建一个palette的route
 		PaletteRoot root = new PaletteRoot();
 		
@@ -202,22 +234,20 @@ public class DiagramEditor extends GraphicalEditorWithPalette {
 		ImageDescriptor descriptor = AbstractUIPlugin.imageDescriptorFromPlugin(Application.PLUGIN_ID, IImageConstant.COMPONENT);
 		
 		//（6）创建“创建HelloModel模型”工具
+
+		List<String> componentIdList = new ArrayList<String>();
+		componentIdList= resolve.getComponnetsId();
 		
-		ArrayList<String> componentList = new ArrayList();
-		componentList.add("com1");
-		componentList.add("com2");
-		componentList.add("com3");
-		componentList.add("com4");
-		
-		for(int i=0;i<componentList.size();i++) {
-			CreationToolEntry creationEntry = new CreationToolEntry(componentList.get(i),//The character string displayed on a palette
-					"创建"+componentList.get(i)+"模型",//Tool提示
-					new SimpleFactory(HelloModel.class),//创建模型的factory
+		for(String componentId:componentIdList) {
+			CreationToolEntry creationEntry = new CreationToolEntry(componentId,//The character string displayed on a palette
+					"创建"+componentId+"模型",//Tool提示
+					new CustomSimpleFactory(ComponentModel.class,componentId),//创建模型的factory
 					descriptor,//The image of 16*16 displayed on a palette
 					descriptor);//The image of 24*24 displayed on a palette
 			drawer.add(creationEntry);
 		}
 		
+	
 		//添加连接工具drawer
 		PaletteDrawer connectionDrawer = new PaletteDrawer("连接");
 		

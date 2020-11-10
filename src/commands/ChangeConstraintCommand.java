@@ -3,10 +3,10 @@ package commands;
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.gef.commands.Command;
 
-import model.HelloModel;
+import model.ComponentModel;
 //改变约束命令：重新设置label的位置和大小
 public class ChangeConstraintCommand extends Command {
-	private HelloModel helloModel;//被本命令改变的模型
+	private ComponentModel helloModel;//被本命令改变的模型
 	private Rectangle constraint;//新的约束？
 	private Rectangle oldConstraint;//以前的约束
 	
@@ -22,7 +22,7 @@ public class ChangeConstraintCommand extends Command {
 	}
 	
 	public void setModel(Object model) {
-		helloModel = (HelloModel) model;
+		helloModel = (ComponentModel) model;
 		oldConstraint = helloModel.getConstraint();//记录旧值
 	}
 	

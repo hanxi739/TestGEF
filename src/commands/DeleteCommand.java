@@ -7,12 +7,12 @@ import org.eclipse.gef.commands.Command;
 
 import model.AbstractConnectionModel;
 import model.ContentsModel;
-import model.HelloModel;
+import model.ComponentModel;
 
 public class DeleteCommand extends Command {
 
 	private ContentsModel contentsModel;
-	private HelloModel helloModel;
+	private ComponentModel helloModel;
 	
 	//Connection List---------------------------
 	private List sourceConnections = new ArrayList();
@@ -52,7 +52,7 @@ public class DeleteCommand extends Command {
 	}
 	
 	public void setHelloModel(Object model) {
-		helloModel = (HelloModel)model;
+		helloModel = (ComponentModel)model;
 	}
 	
 	@Override

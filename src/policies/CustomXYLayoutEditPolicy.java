@@ -9,15 +9,18 @@ import org.eclipse.gef.requests.CreateRequest;
 
 import commands.ChangeConstraintCommand;
 import commands.CreateCommand;
-import model.HelloModel;
+import model.ComponentModel;
 
 public class CustomXYLayoutEditPolicy extends XYLayoutEditPolicy {
 
+	//为什么request里会携带创建的模型对象并且请求类型是create child？？?
 	@Override
 	protected Command getCreateCommand(CreateRequest request) {//这里有CreateRequest，所以在这里调用创建模型的CreateCommand
 		CreateCommand command = new CreateCommand();
 		Rectangle constraint = (Rectangle)getConstraintFor(request);//产生创建图形的尺寸和位置
-		HelloModel model = (HelloModel) request.getNewObject();//获得新创建的图形
+		ComponentModel model = (ComponentModel) request.getNewObject();//获得新创建的图形 
+		System.out.println(model);
+		Object type = request.getNewObjectType();
 		model.setConstraint(constraint);//为该图形设置前面获得的位置和尺寸
 		
 		//将新创建的图形添加到模型中
@@ -33,7 +36,7 @@ public class CustomXYLayoutEditPolicy extends XYLayoutEditPolicy {
 		System.out.println(request.getType());
 		return super.getCommand(request);
 	}
-	*/
+*/
 	
 	/*
 	 * 创建了commands.ChangeConstraintCommand，就要在EditingPolicy的框架下运行命令了。

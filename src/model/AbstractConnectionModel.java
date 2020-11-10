@@ -2,7 +2,7 @@ package model;
 //连接的模型
 //实现对连接线的一些操作，其实这想方法只是调用了起点和终点（这里是HelloModel）中的一些方法而已。因为下述操作对所有的连接都有效，所以我们将他们添加到AbstractConnectionModel中
 public class AbstractConnectionModel {
-	private HelloModel source,target;
+	private ComponentModel source,target;
 	
 	//连接线的头端添加到source
 	public void attachSource() {
@@ -29,19 +29,19 @@ public class AbstractConnectionModel {
 		target.removeTargetConnection(this);
 	}
 	
-	public HelloModel getSource() {
+	public ComponentModel getSource() {
 		return source;
 	}
 
-	public HelloModel getTarget() {
+	public ComponentModel getTarget() {
 		return target;
 	}
 
-	public void setTarget(HelloModel target) {
+	public void setTarget(ComponentModel target) {
 		this.target = target;
 	}
 
-	public void setSource(HelloModel source) {
+	public void setSource(ComponentModel source) {
 		this.source = source;
 	}
 	
