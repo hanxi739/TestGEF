@@ -14,6 +14,15 @@ public class Parameter {
 		this.type = type1;
 		this.note = note;
 	}
+	
+	
+	public Parameter(String name, String value) {
+		super();
+		this.name = name;
+		this.value = value;
+	}
+
+
 	public String getName() {
 		return name;
 	}

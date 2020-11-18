@@ -1,5 +1,7 @@
 package tools;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import java.util.List;
@@ -7,13 +9,19 @@ import java.util.List;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
+import org.dom4j.DocumentFactory;
 import org.dom4j.Element;
+import org.dom4j.io.OutputFormat;
 import org.dom4j.io.SAXReader;
+import org.dom4j.io.XMLWriter;
+
 import constant.IImageConstant;
 import model.Component;
+import model.Node;
 import model.Parameter;
 import model.Property;
 import model.ResourceInfo;
+import model.Waveform;
 
 public  class ResolveXML {
 	
@@ -67,6 +75,82 @@ public  class ResolveXML {
 		}
 		
 		return compoList;
+	}
+	
+	public int saveWaveform(Waveform obj) {
+		List<Node> nodeObjects = obj.getNodeObjects();
+		List<Component> componentObjects = obj.getComponentObjects();
+		try {
+			DocumentFactory factory = DocumentFactory.getInstance();
+			Document document = factory.createDocument();
+			Element waveform = document.addElement("waveform");
+			Element diagram = waveform.addElement("diagram");
+			Element count = diagram.addElement("count");
+			count.setText(Integer.toString(obj.getCount()));
+			Element nodes = diagram.addElement("nodes");
+			
+			
+			for(Node nodeObj:nodeObjects) {
+				Element node = nodes.addElement("node");
+				
+				Element nodeId = node.addElement("nodeId");
+				nodeId.setText(nodeObj.getNodeId());
+				Element componentId = node.addElement("componentId");
+				componentId.setText(nodeObj.getComponentId());
+				Element inputs = node.addElement("inputs");
+				inputs.setText(nodeObj.getInputs());
+				Element outputs = node.addElement("outputs");
+				outputs.setText(nodeObj.getOutputs());
+			}
+			Element components = waveform.addElement("components");
+			for(Component compoObj:componentObjects) {
+				
+				Element component = components.addElement("component");
+				
+				Element componenId = component.addElement("componenId");
+				componenId.setText(compoObj.getId());
+				Element status = component.addElement("status");
+				status.setText(compoObj.getStatus());
+				//写资源信息
+				Element resourceInfo = component.addElement("resourceInfo");			
+				List<ResourceInfo> resourceList = compoObj.getResourceInfoList();
+				for(ResourceInfo res:resourceList) {
+					Element info = resourceInfo.addElement("info");
+					
+					Element category = info.addElement("category");
+					category.setText(res.getCategory());
+					Element codeLocation = info.addElement("codeLocation");
+					codeLocation.setText(res.getCodeLocation());
+					Element resourceUsed = info.addElement("resourceUsed");
+					resourceUsed.setText(res.getResourceUsed());
+					Element type = info.addElement("type");
+					type.setText(res.getType());
+					
+				}
+				//写个性化参数
+				Element parameters = component.addElement("parameters");
+				List<Parameter> paraList = compoObj.getParaList();
+				for(Parameter para:paraList) {
+					Element parameter = parameters.addElement("parameter");
+					Element name = parameter.addElement("name");
+					name.setText(para.getName());
+					Element value = parameter.addElement("value");
+					value.setText(para.getValue());
+				}			
+			}
+			OutputFormat format = new OutputFormat("\t",true,"utf-8");
+			FileWriter fw = new FileWriter("waveform.xml");
+			XMLWriter writer = new XMLWriter(fw,format);
+			writer.write(document);
+			writer.close();
+			System.out.println(" generate XMLByDOM successfully! ");
+			return 1;
+		}
+		catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return 0;
 	}
 	
 	//获得组件库里所有组件的id

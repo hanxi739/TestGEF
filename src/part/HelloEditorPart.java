@@ -23,16 +23,23 @@ import org.eclipse.gef.NodeEditPart;
 import org.eclipse.gef.Request;
 import org.eclipse.gef.RequestConstants;
 import org.eclipse.gef.tools.DirectEditManager;
+import org.eclipse.gef.ui.properties.UndoablePropertySheetEntry;
 import org.eclipse.jface.viewers.TextCellEditor;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.views.properties.IPropertySheetPage;
+import org.eclipse.ui.views.properties.PropertySheetPage;
 
+import constant.IImageConstant;
 import model.ComponentModel;
+import model.CustomPropertySheetPage;
 import policies.CustomComponentEditPolicy;
 
 import policies.CustomGraphicalNodeEditPolicy;
 
 public class HelloEditorPart extends EditPartWithListener implements NodeEditPart{
-
+	
+	
 	//private CustomDirectEditManager directManager = null;//直接编辑图形上文本的相关操作
 	
 	
@@ -61,13 +68,16 @@ public class HelloEditorPart extends EditPartWithListener implements NodeEditPar
 	protected IFigure createFigure() {
 		ComponentModel model = (ComponentModel)getModel();
 		Label label = new Label();
-		label.setText(model.getPropertyList().get(0).getValue());
+		//Image BG_IMAGE=new Image(null,"F:\\projects\\eclipseRCP\\testGEFv4.2\\icons\\component1.png");背景图片会遮盖组件名称
+		String []values = model.getPropertyList().get(0).getValue().split(":"); 
+		label.setText(values[1]);
 		//设置标签颜色
 		//label.setBorder(new CompoundBorder(new LineBorder(), new MarginBorder(5)));
 		label.setBorder(new SimpleRaisedBorder(5));//draw2d的border修改label的样式
-		label.setBackgroundColor(ColorConstants.lightGray);
-		
+		label.setBackgroundColor(ColorConstants.buttonDarker);
 		label.setOpaque(true);
+		
+		//label.setIcon(BG_IMAGE);
         return label;
 	}
 
@@ -128,6 +138,6 @@ public class HelloEditorPart extends EditPartWithListener implements NodeEditPar
 	public ConnectionAnchor getTargetConnectionAnchor(Request request) {
 		return new ChopboxAnchor(getFigure());
 	}
-
+	
 	
 }

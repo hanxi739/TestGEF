@@ -3,18 +3,21 @@ package part;
 import java.beans.PropertyChangeEvent;
 import java.util.List;
 
+import org.eclipse.draw2d.Graphics;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.Layer;
+import org.eclipse.draw2d.LayeredPane;
 import org.eclipse.draw2d.XYLayout;
 import org.eclipse.gef.EditPolicy;
 import org.eclipse.gef.editparts.AbstractGraphicalEditPart;
+import org.eclipse.swt.graphics.Image;
 
-
+import constant.IImageConstant;
 import model.ContentsModel;
 import policies.CustomXYLayoutEditPolicy;
 
 public class ContentsEditPart extends EditPartWithListener {
-
+	static Image BG_IMAGE=new Image(null,IImageConstant.EDITORBG);
 	@Override
 	protected IFigure createFigure() {
 		Layer figure = new Layer();//设置一个透明的图层
@@ -23,7 +26,7 @@ public class ContentsEditPart extends EditPartWithListener {
 	}
 
 	@Override
-	protected void createEditPolicies() {
+	protected void createEditPolicies() {//step1
 		installEditPolicy(EditPolicy.LAYOUT_ROLE,new CustomXYLayoutEditPolicy());//安装了这个policy就可以选择图形的句柄了。接下来就是设置相关的command
 		/*
 		 * 不是很懂什么是LAYOUT_ROLE
@@ -36,7 +39,7 @@ public class ContentsEditPart extends EditPartWithListener {
 		return ((ContentsModel) getModel()).getChildren();
 	}
 	
-	public void propertyChange(PropertyChangeEvent evt) {
+	public void propertyChange(PropertyChangeEvent evt) {//step5
 		if(evt.getPropertyName().equals(ContentsModel.P_CHILDREN)){//模型改变时通知
 			refreshChildren();//因此子模型改变，要刷新子模型的EditPart显示其改变。  ！注意这里是利用refreshChildren方法来刷新子模型的EditPart，但是要真的删除图形，还是要有相应的Command
 		}

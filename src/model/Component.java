@@ -10,6 +10,7 @@ public class Component extends AbstractModel {
 	private String status;
 	private List<ResourceInfo> resourceInfoList;
 	private List<Parameter> paraList;
+	private String objId;
     
 //--------------------------------------需要设置和获得的参数信息------------------------------------
     
@@ -25,7 +26,7 @@ public class Component extends AbstractModel {
 	this.status = status;
 	this.resourceInfoList = resourceInfoList;
 	this.paraList = paraList;
-}
+	}
 
 	public void setId(String id) {
 		this.id = id;
@@ -54,5 +55,15 @@ public class Component extends AbstractModel {
 	public void setParaList(List<Parameter> paraList) {
 		this.paraList = paraList;
 	}
+
+	public String getObjId() {
+		return objId;
+	}
+
+	public void setObjId(String objId) {
+		this.objId = objId;
+	}
+	
+	
 	
 }

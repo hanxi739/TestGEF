@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.draw2d.geometry.Rectangle;
+import org.eclipse.ui.views.properties.ColorPropertyDescriptor;
 import org.eclipse.ui.views.properties.ComboBoxPropertyDescriptor;
 import org.eclipse.ui.views.properties.IPropertyDescriptor;
 import org.eclipse.ui.views.properties.PropertyDescriptor;
@@ -14,7 +15,8 @@ import tools.ResolveXML;
 
 public class ComponentModel extends AbstractModel{
 
-	private List<Property> propertyList;
+	private List<Property> propertyList;//维护一个属性列表，用于展示该组件的属性信息。注意对该对象的初始化和修改要同步到component对象中，或者直接在最终保存文件的时候利用该对象信息对component进行初始化
+	//private Component component;//维护一个完整的组件类对象，用于之后生成波形配置文件
 	private Rectangle constraint;//约束
 	
 	
@@ -105,27 +107,44 @@ public class ComponentModel extends AbstractModel{
     		Property pro = propertyList.get(i);
 
     		if(pro.getName().equals("id")){//id
-    			descriptorList.add(new PropertyDescriptor(i,"id"));
+    			PropertyDescriptor id = new PropertyDescriptor(i,"id");
+    			id.setCategory("Standard");
+    			descriptorList.add(id);
     			}
     		else if(pro.getName().equals("status")) {//status
-    			descriptorList.add(new TextPropertyDescriptor(i,"status"));
+    			TextPropertyDescriptor status= new TextPropertyDescriptor(i,"status");
+    			status.setCategory("Standard");
+    			descriptorList.add(status);
     			}
     		else {
     			switch(pro.getType()) {
 
-    				case 1://只读
-    					descriptorList.add(new PropertyDescriptor(i,pro.getName()));
+    				case 1://只读    
+    					PropertyDescriptor pro1 = new PropertyDescriptor(i,pro.getName());
+    					pro1.setCategory("Parameters");
+    					descriptorList.add(pro1);
     					break;
     				case 2://下拉框
-    					String [] values =pro.getNote().split(";"); 
-    					descriptorList.add(new ComboBoxPropertyDescriptor(i,pro.getName(),values));
+    					String [] values =pro.getNote().split(";");
+    					ComboBoxPropertyDescriptor pro2= new ComboBoxPropertyDescriptor(i,pro.getName(),values);
+    					pro2.setCategory("Parameters");
+    					descriptorList.add(pro2);
     					break;
     				case 3://可编辑
-    					descriptorList.add(new TextPropertyDescriptor(i,pro.getName()));
+    					TextPropertyDescriptor pro3 = new TextPropertyDescriptor(i,pro.getName());
+    					pro3.setCategory("Parameters");
+    					descriptorList.add(pro3);
     					break;
     				default:
-    					descriptorList.add(new TextPropertyDescriptor(i,pro.getName()));
+    					PropertyDescriptor proDesc1 = new TextPropertyDescriptor(i,pro.getName());
+    					String name1 =proDesc1.getDisplayName();
+    	    			if(name1.equals("category")|| name1.equals("codeLocation")||name1.equals("resourceUsed")|| name1.equals("type")) {
+    	        			proDesc1.setCategory("resourceInfo");
+    	        		}
+    					descriptorList.add(proDesc1);
+    					
     			}
+    			
     		}
     	}
     	int size = descriptorList.size();
@@ -138,6 +157,7 @@ public class ComponentModel extends AbstractModel{
 	//使用属性的ID来获得该属性在属性视图的值
     public Object getPropertyValue(Object id) {
     	if((Integer)id<propertyList.size()) {
+    	
     		if(propertyList.get((Integer)id).getType()==2) {//ComboBox返回的是序号需要转换为Integer类型。否则可能不显示可选条目。
     			Property pro = propertyList.get((Integer)id);
     			String value = pro.getValue();
@@ -176,10 +196,9 @@ public class ComponentModel extends AbstractModel{
         		pro.setValue((String)value);
         		propertyList.set((Integer)id, pro);
     		}
-    		for(Property pro:propertyList) {
-    			System.out.println(pro.getName()+":"+pro.getValue());
-    		}
+    		
     	}
+    	
     }
     
 	public Rectangle getConstraint() {

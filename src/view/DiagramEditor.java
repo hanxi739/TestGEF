@@ -1,15 +1,22 @@
 package view;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.draw2d.ColorConstants;
+import org.eclipse.draw2d.FreeformLayer;
+import org.eclipse.draw2d.Graphics;
 import org.eclipse.draw2d.IImageFigure;
+import org.eclipse.draw2d.Layer;
+import org.eclipse.draw2d.LayeredPane;
 import org.eclipse.draw2d.PositionConstants;
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.gef.DefaultEditDomain;
 import org.eclipse.gef.GraphicalViewer;
+import org.eclipse.gef.editparts.ScalableFreeformRootEditPart;
 import org.eclipse.gef.editparts.ScalableRootEditPart;
 import org.eclipse.gef.editparts.ZoomManager;
 import org.eclipse.gef.palette.ConnectionCreationToolEntry;
@@ -28,20 +35,34 @@ import org.eclipse.gef.ui.actions.ZoomInAction;
 import org.eclipse.gef.ui.actions.ZoomOutAction;
 import org.eclipse.gef.ui.parts.GraphicalEditor;
 import org.eclipse.gef.ui.parts.GraphicalEditorWithPalette;
+import org.eclipse.gef.ui.parts.TreeViewer;
+import org.eclipse.gef.ui.properties.UndoablePropertySheetEntry;
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.dialogs.ProgressMonitorDialog;
+import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
+import org.eclipse.ui.views.properties.IPropertySheetPage;
+import org.eclipse.ui.views.properties.PropertySheetPage;
 
 import constant.IImageConstant;
 import model.AbstractConnectionModel;
 import model.ArrowConnectionModel;
 import model.Component;
 import model.ContentsModel;
+import model.CustomPropertySheetPage;
 import model.ComponentModel;
 import model.LineConnectionModel;
+import model.Node;
+import model.Parameter;
 import model.Property;
+import model.ResourceInfo;
+import model.Waveform;
 import part.CustomSimpleFactory;
 import part.PartFactory;
 import testgef.Application;
@@ -53,6 +74,7 @@ public class DiagramEditor extends GraphicalEditorWithPalette {
 	private ContentsModel parent ;
 	private ResolveXML resolve ;
 	private List<String> componentIDs = new ArrayList<String>();//存储组件库里的所有模型
+	static Image BG_IMAGE=new Image(null,IImageConstant.EDITORBG);
 	
 	public DiagramEditor() {
 		setEditDomain(new DefaultEditDomain(this));
@@ -69,15 +91,36 @@ public class DiagramEditor extends GraphicalEditorWithPalette {
 	protected void configureGraphicalViewer() {//第一步，把模型和控制器在视图GraphicalViewer中连接起来
 		super.configureGraphicalViewer();
 		viewer = getGraphicalViewer();
-		//viewer.getControl().setBackground(new Color(null, 200 , 200 , 200));
+		//viewer.getControl().setBackground(ColorConstants.lightGray);
+		//viewer.getControl().setBackgroundImage(BG_IMAGE);
+		ScalableRootEditPart rootEditPart = new ScalableRootEditPart();
 		
+		/*
+		//------------------------------------给编辑器添加背景图片-------------------------------------
+		//覆盖ScalableFreeformRootEditPart的createlayers方法以便增加自己的层
+		ScalableFreeformRootEditPart rootEditPart =  new ScalableFreeformRootEditPart() {
+			protected void createLayers(LayeredPane layeredPane) {
+				Layer layer = new FreeformLayer() {
+	                protected void paintFigure(Graphics graphics) {
+	                    super.paintFigure(graphics);
+	                    //在层上绘制图片，也可以绘制其他图形作为背景，GEF的网格线就是一例
+	                    graphics.drawImage(BG_IMAGE,0,0);
+	                }
+				};
+            layeredPane.add(layer);
+            super.createLayers(layeredPane);
+			}
+		};
+	*/
+		viewer.setRootEditPart(rootEditPart);
+				
 		//----------------------9.1提供图形的缩放功能---------------------------------
 		/*首先设置根图形的RootEditPart为ScalableRootEditPart（具有缩放功能的），那么依附于此的所有子图形都具有了缩放能力。
 		 * 并且这里我们所使用的ScalableRootEditPart提供了一个ZoomManager类，可以被用来管理图形的最大化、最小化等操作。
 		 * 对图形的缩放操作实际上是通过这个ZoomManager实现的。如果说ZoomManager还是个幕后主使的话，那么ZoomInAction和ZoomOutAction就是实际操作图形缩放的类 
 		 * */
-		ScalableRootEditPart rootEditPart = new ScalableRootEditPart();
-		viewer.setRootEditPart(rootEditPart);
+	
+
 		ZoomManager manager= rootEditPart.getZoomManager();//获得ZoomManager
 		//注册放大Action
 		IAction action = new ZoomInAction(manager);
@@ -86,6 +129,10 @@ public class DiagramEditor extends GraphicalEditorWithPalette {
 		action = new ZoomOutAction(manager);
 		getActionRegistry().registerAction(action);
 		
+		
+		
+    
+    
 		viewer.setEditPartFactory(new PartFactory());
 		
 	}
@@ -167,44 +214,136 @@ public class DiagramEditor extends GraphicalEditorWithPalette {
 	}
 	@Override
 	public void doSave(IProgressMonitor monitor) {
-		getCommandStack().markSaveLocation();
-		//-----------------------------------获得diagram的节点及连接信息----------------------------------
-		  ContentsModel diagram =parent; //如何获得父模型对象呢？
-          List<ComponentModel> nodes = new  ArrayList<ComponentModel>();
-          nodes = diagram.getChildren();
-          int nodeCount = nodes.size();//节点的个数
-          System.out.println(diagram+"的子节点有"+nodeCount+"个"+"分别是：");
-          for(ComponentModel node:nodes) {
-              System.out.println(node);
-              List<AbstractConnectionModel>  sourceConnections = new  ArrayList<AbstractConnectionModel>();//把这个节点作为source的连线的集合，由此可以得到该节点对应的所有输出端口
-              List<AbstractConnectionModel>  targetConnections = new  ArrayList<AbstractConnectionModel>();//把这个节点作为target的连线的集合，由此可以得到该节点对应的所有输入端口
-              sourceConnections =  node.getModelSourceConnections();
-              targetConnections =  node.getModelTargetConnections();
-            //遍历把这个节点作为target的连线的集合，由此可以得到该节点对应的所有输入端口
-              System.out.print(node+"的输入节点有：");
-              if(targetConnections.size()==0) {
-                System.out.println(0);
-              }
-              for(int inputNum=0;  inputNum<targetConnections.size();inputNum++) {
-                AbstractConnectionModel connection =  (AbstractConnectionModel)  targetConnections.get(inputNum);
-                ComponentModel model_connx =  connection.getTarget();
-                System.out.println(model_connx);
-               }
-              
-            //遍历把这个节点作为source的连线的集合，由此可以得到该节点对应的所有输出端口
-              System.out.print(node+"的输出节点有：");
-              if(sourceConnections.size()==0) {
-                System.out.println(0);
-              }
-               for(int outputNum=0;  outputNum<sourceConnections.size();outputNum++) {
-                    AbstractConnectionModel connection =  (AbstractConnectionModel)  sourceConnections.get(outputNum);
-                ComponentModel model_connx =  connection.getTarget();
-                System.out.println(model_connx);
-               }
-          }
-         
+	
+                    //-------------------------------------具体执行--------------------------
+                 	getCommandStack().markSaveLocation();
+            		//-----------------------------------获得diagram的节点及连接信息----------------------------------
+            		  ContentsModel diagram =parent; //如何获得父模型对象呢？
+                      List<ComponentModel> nodes = new  ArrayList<ComponentModel>();
+                      nodes = diagram.getChildren();
+                      int nodeCount = nodes.size();//节点的个数
+                      
+                     
+                      List<Node> nodeObjects = getNodeInfo(nodes);//获取diagram中出现的所有节点信息
+                      List<Component> componentObjects = getCompoInfo(nodes) ;//获取diagram中出现的组件对象的具体信息
+                      Waveform wave = new Waveform(nodeCount,nodeObjects,componentObjects);
+                      resolve = new ResolveXML();
+                      resolve.saveWaveform(wave);
+                     //------------------------------------执行完毕-----------------------------
+	
 	}
-
+	
+	public List<Node> getNodeInfo(List<ComponentModel> obj){
+		List<ComponentModel> nodes = new ArrayList<ComponentModel>();
+		nodes = obj;
+		
+		List<Node> nodeList = new ArrayList<Node>();
+		 //获取每个节点的参数信息和整个diagram的连接信息	
+		for(ComponentModel node:nodes) {
+		  String nodeId = node.toString();
+		  String componentId = node.getPropertyList().get(0).getValue();
+		  String in = "";
+		  String out = "";
+		  List<ComponentModel> inputs = getInputs(node);
+		  for(ComponentModel input:inputs) {
+			  if(in !="") {
+				  in = in+";"+input; 
+			  }
+			  else {
+				  in = in+input;
+			  }
+		  }
+		  
+		  List<ComponentModel> outputs = getOutputs(node);
+		  for(ComponentModel output:outputs) {
+			  if(out !="") {
+				  out = out+";"+output; 
+			  }
+			  else {
+				  out = out+output;
+			  }
+		  }
+		  
+		  Node nodeinfo = new Node(nodeId,componentId,in,out);
+		  nodeList.add(nodeinfo);
+		 }
+		return nodeList;
+	}
+	
+	public List<Component> getCompoInfo(List<ComponentModel> obj){
+		List<ComponentModel> nodes = new ArrayList<ComponentModel>();
+		nodes = obj;
+	
+		List<Component> compoList = new ArrayList<Component>();
+		for(ComponentModel node:nodes) {
+			Component compo = getComponentObject(node);
+			compo.setObjId(node.toString());
+			compoList.add(compo);
+		}
+		System.out.println("组件数量是："+compoList.size());
+		return compoList;
+	}
+	
+	//--------------------------------------定义获得某个ComponentModel的全部参数信息以及inputs和outputs的方法-------------------------------------------
+	//获取当前组件对象的信息，创建一个Component对象
+	public Component getComponentObject(ComponentModel node) {
+	    
+        List<ResourceInfo> resourceInfoList = new ArrayList<ResourceInfo>();
+        List<Parameter> paraList = new ArrayList<Parameter>();
+        
+        List<Property> propertyList = node.getPropertyList();
+        String id = propertyList.get(0).getValue();
+        String status = propertyList.get(1).getValue();
+        //获得当前对象的各种参数信息
+        for(int i= 2; i<propertyList.size(); ) {
+      	  if(propertyList.get(i).getName().equals("category")) {
+      		  String category = propertyList.get(i).getValue();
+      		  String codeLocation = propertyList.get(i+1).getValue();
+      		  String resourceUsed = propertyList.get(i+2).getValue();
+      		  String type = propertyList.get(i+3).getValue();
+      		  ResourceInfo info = new ResourceInfo(category,codeLocation,resourceUsed,type);
+      		  resourceInfoList.add(info);
+      		  i = i+4;
+      		  
+      	  }
+      	  else {
+      		  String name = propertyList.get(i).getName();
+      		  String value = propertyList.get(i).getValue();
+      		  Parameter para = new Parameter(name,value);
+      		  paraList.add(para);
+      		  i = i+1;            		  
+      	  }
+        }
+        Component compo = new Component(id,status,resourceInfoList,paraList);
+        return compo;
+	}
+	
+	
+	public List<ComponentModel> getInputs(ComponentModel node){
+		List<ComponentModel> inputs = new ArrayList<ComponentModel>();
+		List<AbstractConnectionModel>  targetConnections = new  ArrayList<AbstractConnectionModel>();//把这个节点作为target的连线的集合，由此可以得到该节点对应的所有输入端口
+		targetConnections =  node.getModelTargetConnections();
+		 //遍历把这个节点作为target的连线的集合，由此可以得到该节点对应的所有输入端口
+        for(int inputNum=0;  inputNum<targetConnections.size();inputNum++) {
+           AbstractConnectionModel connection =  (AbstractConnectionModel)  targetConnections.get(inputNum);
+           ComponentModel model_connx =  connection.getSource();
+           inputs.add(model_connx);
+         }
+        return inputs;
+	}
+	
+	public List<ComponentModel> getOutputs(ComponentModel node){
+		List<ComponentModel> outputs = new ArrayList<ComponentModel>();
+		List<AbstractConnectionModel>  sourceConnections = new  ArrayList<AbstractConnectionModel>();//把这个节点作为source的连线的集合，由此可以得到该节点对应的所有输出端口
+        sourceConnections =  node.getModelSourceConnections();
+       //遍历把这个节点作为source的连线的集合，由此可以得到该节点对应的所有输出端口
+        for(int outputNum=0;  outputNum<sourceConnections.size();outputNum++) {
+           AbstractConnectionModel connection =  (AbstractConnectionModel)  sourceConnections.get(outputNum);
+           ComponentModel model_connx =  connection.getTarget();
+           outputs.add(model_connx);
+          }
+        return outputs;
+     }
 //----------------------------------------初始化palette----------------------------------
 	@Override
 	protected PaletteRoot getPaletteRoot() {
@@ -278,5 +417,19 @@ public class DiagramEditor extends GraphicalEditorWithPalette {
 		root.add(connectionDrawer);
 		return root;
 	}
-
+	 private PropertySheetPage propertySheetPage;
+		//----------------------------------------------调整属性页属性排序-----------------------------------------------------
+	 public Object getAdapter(Class type) {
+		 if (type == IPropertySheetPage.class){
+			  propertySheetPage = new CustomPropertySheetPage();
+			  //下边这句话非常必要,如果不设置,Properties View更新时候,资源不能自动更新...
+			  propertySheetPage.setRootEntry(new UndoablePropertySheetEntry(this.getCommandStack()));
+			  return propertySheetPage;
+		 }
+		 //<-
+		 if (type == ZoomManager.class) {
+			 return getGraphicalViewer().getProperty(ZoomManager.class.toString());
+		 }
+		 return super.getAdapter(type);
+	 }
 }

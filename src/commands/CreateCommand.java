@@ -15,7 +15,7 @@ public class CreateCommand extends Command {
 	private ContentsModel contentsModel;
 	private ComponentModel helloModel;
 	
-	public void execute() {
+	public void execute() {//step3
 
 		contentsModel.addChild(helloModel);//添加节点
 		/*
