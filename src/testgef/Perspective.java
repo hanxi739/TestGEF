@@ -10,9 +10,15 @@ public class Perspective implements IPerspectiveFactory {
 	@Override	
 	public void createInitialLayout(IPageLayout layout) {
 		final String properties = "org.eclipse.ui.views.PropertySheet";
+		final String outline = "org.eclipse.ui.views.ContentOutline";
 		final String editorArea = layout.getEditorArea();
-		IFolderLayout leftTopFolder = layout.createFolder("LeftTop", IPageLayout.BOTTOM, 0.34f, editorArea);
-		leftTopFolder.addView(properties);
+		IFolderLayout BottomFolder = layout.createFolder("Bottom", IPageLayout.BOTTOM, 0.5f, editorArea);
+		IFolderLayout rightTopFolder = layout.createFolder("RightTop", IPageLayout.RIGHT, 0.8f, editorArea);
+		BottomFolder.addView(properties);
+		
+		rightTopFolder.addView(outline);
+		
+		
 		layout.setEditorAreaVisible(true);
 	}
 }

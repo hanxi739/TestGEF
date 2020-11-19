@@ -15,6 +15,7 @@ import org.eclipse.draw2d.LayeredPane;
 import org.eclipse.draw2d.PositionConstants;
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.gef.DefaultEditDomain;
+import org.eclipse.gef.EditPartViewer;
 import org.eclipse.gef.GraphicalViewer;
 import org.eclipse.gef.editparts.ScalableFreeformRootEditPart;
 import org.eclipse.gef.editparts.ScalableRootEditPart;
@@ -33,6 +34,7 @@ import org.eclipse.gef.ui.actions.AlignmentAction;
 import org.eclipse.gef.ui.actions.DirectEditAction;
 import org.eclipse.gef.ui.actions.ZoomInAction;
 import org.eclipse.gef.ui.actions.ZoomOutAction;
+import org.eclipse.gef.ui.parts.ContentOutlinePage;
 import org.eclipse.gef.ui.parts.GraphicalEditor;
 import org.eclipse.gef.ui.parts.GraphicalEditorWithPalette;
 import org.eclipse.gef.ui.parts.TreeViewer;
@@ -41,8 +43,12 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
@@ -65,13 +71,15 @@ import model.ResourceInfo;
 import model.Waveform;
 import part.CustomSimpleFactory;
 import part.PartFactory;
+import part.TreeEditPartFactory;
 import testgef.Application;
 import tools.ResolveXML;
 
 public class DiagramEditor extends GraphicalEditorWithPalette {
+	
 	public static final String EDITOR_ID = "testGEF.DiagramEditor";
 	GraphicalViewer viewer;//绘制、显示图形
-	private ContentsModel parent ;
+	private ContentsModel contentsModel ;
 	private ResolveXML resolve ;
 	private List<String> componentIDs = new ArrayList<String>();//存储组件库里的所有模型
 	static Image BG_IMAGE=new Image(null,IImageConstant.EDITORBG);
@@ -128,17 +136,13 @@ public class DiagramEditor extends GraphicalEditorWithPalette {
 		//注册缩小Action
 		action = new ZoomOutAction(manager);
 		getActionRegistry().registerAction(action);
-		
-		
-		
-    
-    
+		    
 		viewer.setEditPartFactory(new PartFactory());
 		
 	}
 
 	protected void initializeGraphicalViewer() {
-		parent =  new ContentsModel();
+		contentsModel =  new ContentsModel();
 		//viewer.setContents(new HelloModel());//第二步,设置GraphicalViewer中显示的内容
 		//ContentsModel parent = new ContentsModel();
 		/*
@@ -161,7 +165,7 @@ public class DiagramEditor extends GraphicalEditorWithPalette {
 		child2.setConstraint(new Rectangle(300,400,250,80));//长宽设置为-1可以使矩形随着里面的文字变化大小
 		parent.addChild(child2);//将子模型添加到父模型中
 		*/
-		viewer.setContents(parent);
+		viewer.setContents(contentsModel);
 	}
 	
 	//----------------------实现图形的对齐---------------------------------
@@ -218,7 +222,7 @@ public class DiagramEditor extends GraphicalEditorWithPalette {
                     //-------------------------------------具体执行--------------------------
                  	getCommandStack().markSaveLocation();
             		//-----------------------------------获得diagram的节点及连接信息----------------------------------
-            		  ContentsModel diagram =parent; //如何获得父模型对象呢？
+            		  ContentsModel diagram =contentsModel; //如何获得父模型对象呢？
                       List<ComponentModel> nodes = new  ArrayList<ComponentModel>();
                       nodes = diagram.getChildren();
                       int nodeCount = nodes.size();//节点的个数
@@ -426,10 +430,50 @@ public class DiagramEditor extends GraphicalEditorWithPalette {
 			  propertySheetPage.setRootEntry(new UndoablePropertySheetEntry(this.getCommandStack()));
 			  return propertySheetPage;
 		 }
-		 //<-
+		 //
 		 if (type == ZoomManager.class) {
 			 return getGraphicalViewer().getProperty(ZoomManager.class.toString());
 		 }
+		 
+		 //如果是IContentOutlinePage类型，则返回该ContentOutlinePage
+		 if(type == IContentOutlinePage.class) {
+			 return new CustomContentOutlinePage();
+		 }
 		 return super.getAdapter(type);
 	 }
+	
+	//--------------------------------------------实现Outline1：先创建内部类ContentOutlinePage-------------------------------------------
+			class CustomContentOutlinePage extends ContentOutlinePage{
+				private SashForm sash;//使用SashForm把Outline视图分为两部分：显示大纲和显示鹰眼
+				public CustomContentOutlinePage() {
+					super(new TreeViewer());
+					// TODO Auto-generated constructor stub
+				}
+				@Override
+				public void createControl(Composite compositeParent) {
+					sash = new SashForm(compositeParent,SWT.VERTICAL);//创建SashForm
+					
+					getViewer().createControl(sash);//添加分割条
+					getViewer().setEditDomain(getEditDomain());//设置编辑域
+					getViewer().setEditPartFactory(new TreeEditPartFactory());//设置EditPartFactory
+					getViewer().setContents(contentsModel);//本视图中对应于ContentsModel的内容
+					getSelectionSynchronizer().addViewer(getViewer());//选择同步：在Graphical editor中选择图形，则大纲视图选择对应的节点，反之亦然。
+				}
+				
+				
+				@Override
+				public Control getControl() {//当大纲视图是当前（active）视图时，返回聚焦的控件
+					return sash;
+				}
+				
+				public void dispose() {//从TreeViewer中删除SelectionSynchronizer
+					getSelectionSynchronizer().removeViewer(getViewer());
+					super.dispose();
+				}
+				
+				//---------------------------------------outline----------------------------------------------------------------------
+				
+			}
+	
 }
+
