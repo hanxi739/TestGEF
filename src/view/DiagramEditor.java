@@ -1,5 +1,11 @@
 package view;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.EventObject;
@@ -76,7 +82,10 @@ import testgef.Application;
 import tools.ResolveXML;
 
 public class DiagramEditor extends GraphicalEditorWithPalette {
-	
+	//public static String openFilePath = null;
+	public static String saveFilePath = null;
+	public static String XMLFilePath = null;
+	public static boolean openFile = false;
 	public static final String EDITOR_ID = "testGEF.DiagramEditor";
 	GraphicalViewer viewer;//绘制、显示图形
 	private ContentsModel contentsModel ;
@@ -98,6 +107,9 @@ public class DiagramEditor extends GraphicalEditorWithPalette {
 
 	protected void configureGraphicalViewer() {//第一步，把模型和控制器在视图GraphicalViewer中连接起来
 		super.configureGraphicalViewer();
+		String fileName = saveFilePath.trim();
+		fileName = fileName.substring(fileName.lastIndexOf("\\")+1);
+		super.setPartName(fileName);//设置编辑器的名称为当前文件的名字
 		viewer = getGraphicalViewer();
 		//viewer.getControl().setBackground(ColorConstants.lightGray);
 		//viewer.getControl().setBackgroundImage(BG_IMAGE);
@@ -143,29 +155,58 @@ public class DiagramEditor extends GraphicalEditorWithPalette {
 
 	protected void initializeGraphicalViewer() {
 		contentsModel =  new ContentsModel();
-		//viewer.setContents(new HelloModel());//第二步,设置GraphicalViewer中显示的内容
-		//ContentsModel parent = new ContentsModel();
+		//如果是打开diagram文件，就读入输入流将旧模型写入editor，否则打开空白的editor
+		if(openFile) {
+			try {
+				ObjectInputStream in = new ObjectInputStream(new FileInputStream(saveFilePath));
+				contentsModel = (ContentsModel) in.readObject();
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
 		/*
 		//不知道为什么这里添加了矩形约束后才显示的图形，上一步结束后没有显示
 		List<String> ids = new ArrayList<String>();
 		ids = getComponentIDs();
 		List <Property> pros = resolve.getPropertyList(ids.get(0));
 		ComponentModel child0 = new ComponentModel(pros);//创建一个子模型
+		child0.setObjName("123");
 		child0.setConstraint(new Rectangle(-1,-1,250,80));//长宽设置为-1可以使矩形随着里面的文字变化大小
-		parent.addChild(child0);//将子模型添加到父模型中
+		contentsModel.addChild(child0);//将子模型添加到父模型中
 	
 		List <Property> pros1 = resolve.getPropertyList(ids.get(1));
 		ComponentModel child1 = new ComponentModel(pros1);//创建一个子模型
+		child1.setObjName("456");
 		child1.setConstraint(new Rectangle(180,200,250,80));//长宽设置为-1可以使矩形随着里面的文字变化大小
-		parent.addChild(child1);//将子模型添加到父模型中
+		contentsModel.addChild(child1);//将子模型添加到父模型中
 		
 		
 		List <Property> pros2 = resolve.getPropertyList(ids.get(2));
 		ComponentModel child2 = new ComponentModel(pros2);//创建一个子模型
 		child2.setConstraint(new Rectangle(300,400,250,80));//长宽设置为-1可以使矩形随着里面的文字变化大小
-		parent.addChild(child2);//将子模型添加到父模型中
+		child2.setObjName("789");
+		contentsModel.addChild(child2);//将子模型添加到父模型中
+		
+		ArrowConnectionModel conx1 =  new ArrowConnectionModel();
+		conx1.setSource(child0);
+		conx1.setTarget(child1);
+		conx1.attachSource();
+		conx1.attachTarget();
+		ArrowConnectionModel conx2= new ArrowConnectionModel();
+		conx2.setSource(child1);
+		conx2.setTarget(child2);
+		conx2.attachSource();
+		conx2.attachTarget();
 		*/
-		viewer.setContents(contentsModel);
+		viewer.setContents(contentsModel);//第二步,设置GraphicalViewer中显示的内容
 	}
 	
 	//----------------------实现图形的对齐---------------------------------
@@ -218,23 +259,34 @@ public class DiagramEditor extends GraphicalEditorWithPalette {
 	}
 	@Override
 	public void doSave(IProgressMonitor monitor) {
-	
-                    //-------------------------------------具体执行--------------------------
-                 	getCommandStack().markSaveLocation();
-            		//-----------------------------------获得diagram的节点及连接信息----------------------------------
-            		  ContentsModel diagram =contentsModel; //如何获得父模型对象呢？
-                      List<ComponentModel> nodes = new  ArrayList<ComponentModel>();
-                      nodes = diagram.getChildren();
-                      int nodeCount = nodes.size();//节点的个数
-                      
-                     
-                      List<Node> nodeObjects = getNodeInfo(nodes);//获取diagram中出现的所有节点信息
-                      List<Component> componentObjects = getCompoInfo(nodes) ;//获取diagram中出现的组件对象的具体信息
-                      Waveform wave = new Waveform(nodeCount,nodeObjects,componentObjects);
-                      resolve = new ResolveXML();
-                      resolve.saveWaveform(wave);
-                     //------------------------------------执行完毕-----------------------------
-	
+		XMLFilePath = saveFilePath.replace("diagram", "xml");
+		System.out.println(System.getProperty("user.dir"));
+        //-------------------------------------具体执行--------------------------
+     	getCommandStack().markSaveLocation();
+     	//-----------------------------------获得diagram的节点及连接信息----------------------------------
+		  ContentsModel diagram = contentsModel; //如何获得父模型对象呢？
+		  try {
+			ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(saveFilePath));
+			out.writeObject(diagram);
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	      List<ComponentModel> nodes = new  ArrayList<ComponentModel>();
+	      nodes = diagram.getChildren();
+	      int nodeCount = nodes.size();//节点的个数
+	      
+	     
+	      List<Node> nodeObjects = getNodeInfo(nodes);//获取diagram中出现的所有节点信息
+	      List<Component> componentObjects = getCompoInfo(nodes) ;//获取diagram中出现的组件对象的具体信息
+	      Waveform wave = new Waveform(nodeCount,nodeObjects,componentObjects);
+	      resolve = new ResolveXML();
+	      resolve.saveWaveform(wave,XMLFilePath);
+     //------------------------------------执行完毕-----------------------------
+
 	}
 	
 	public List<Node> getNodeInfo(List<ComponentModel> obj){
@@ -244,7 +296,7 @@ public class DiagramEditor extends GraphicalEditorWithPalette {
 		List<Node> nodeList = new ArrayList<Node>();
 		 //获取每个节点的参数信息和整个diagram的连接信息	
 		for(ComponentModel node:nodes) {
-		  String nodeId = node.toString();
+		  String nodeId = node.getObjName();
 		  String componentId = node.getPropertyList().get(0).getValue();
 		  String in = "";
 		  String out = "";
@@ -281,10 +333,8 @@ public class DiagramEditor extends GraphicalEditorWithPalette {
 		List<Component> compoList = new ArrayList<Component>();
 		for(ComponentModel node:nodes) {
 			Component compo = getComponentObject(node);
-			compo.setObjId(node.toString());
 			compoList.add(compo);
 		}
-		System.out.println("组件数量是："+compoList.size());
 		return compoList;
 	}
 	
@@ -319,6 +369,8 @@ public class DiagramEditor extends GraphicalEditorWithPalette {
       	  }
         }
         Component compo = new Component(id,status,resourceInfoList,paraList);
+        compo.setObjId(node.getObjName());
+        System.out.println("diagram editor中的component objId:"+node.getObjName());
         return compo;
 	}
 	
@@ -374,7 +426,7 @@ public class DiagramEditor extends GraphicalEditorWithPalette {
 		//指定"创建HelloModel模型"工具所对应的图标
 		ImageDescriptor descriptor = AbstractUIPlugin.imageDescriptorFromPlugin(Application.PLUGIN_ID, IImageConstant.COMPONENT);
 		
-		//（6）创建“创建HelloModel模型”工具
+		//（6）创建“创建HelloModel模型”工具。这些模型对象都是在点击界面上对应的Entry时就创建了
 
 		List<String> componentIdList = new ArrayList<String>();
 		componentIdList= resolve.getComponnetsId();
@@ -382,7 +434,7 @@ public class DiagramEditor extends GraphicalEditorWithPalette {
 		for(String componentId:componentIdList) {
 			CreationToolEntry creationEntry = new CreationToolEntry(componentId,//The character string displayed on a palette
 					"创建"+componentId+"模型",//Tool提示
-					new CustomSimpleFactory(ComponentModel.class,componentId),//创建模型的factory
+					new CustomSimpleFactory(ComponentModel.class,componentId),//创建模型的factory，原来这些模型对象都是在点击界面上对应的Entry时就创建了
 					descriptor,//The image of 16*16 displayed on a palette
 					descriptor);//The image of 24*24 displayed on a palette
 			drawer.add(creationEntry);

@@ -25,7 +25,7 @@ public class DiagramEditorInput implements IPathEditorInput{
 
 	@Override
 	public String getName() {
-		return path.toString();
+		return "name";
 	}
 
 	@Override
@@ -35,7 +35,7 @@ public class DiagramEditorInput implements IPathEditorInput{
 
 	@Override
 	public String getToolTipText() {
-		return path.toString();
+		return "tip";
 	}
 
 	@Override

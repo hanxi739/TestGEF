@@ -77,7 +77,7 @@ public  class ResolveXML {
 		return compoList;
 	}
 	
-	public int saveWaveform(Waveform obj) {
+	public int saveWaveform(Waveform obj,String XMLfilePath) {
 		List<Node> nodeObjects = obj.getNodeObjects();
 		List<Component> componentObjects = obj.getComponentObjects();
 		try {
@@ -106,7 +106,8 @@ public  class ResolveXML {
 			for(Component compoObj:componentObjects) {
 				
 				Element component = components.addElement("component");
-				
+				Element objId = component.addElement("objId");
+				objId.setText(compoObj.getObjId());
 				Element componenId = component.addElement("componenId");
 				componenId.setText(compoObj.getId());
 				Element status = component.addElement("status");
@@ -139,7 +140,7 @@ public  class ResolveXML {
 				}			
 			}
 			OutputFormat format = new OutputFormat("\t",true,"utf-8");
-			FileWriter fw = new FileWriter("waveform.xml");
+			FileWriter fw = new FileWriter(XMLfilePath);
 			XMLWriter writer = new XMLWriter(fw,format);
 			writer.write(document);
 			writer.close();

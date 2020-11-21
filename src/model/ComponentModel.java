@@ -15,11 +15,10 @@ import tools.ResolveXML;
 
 public class ComponentModel extends AbstractModel{
 
-	private List<Property> propertyList;//维护一个属性列表，用于展示该组件的属性信息。注意对该对象的初始化和修改要同步到component对象中，或者直接在最终保存文件的时候利用该对象信息对component进行初始化
+	private List<Property> propertyList;//维护一个属性列表，用于展示该组件的属性信息。在最终保存文件的时候利用该对象信息对component进行初始化
 	//private Component component;//维护一个完整的组件类对象，用于之后生成波形配置文件
-	private Rectangle constraint;//约束
-	private String objName;
-	
+	private Rectangle constraint;//约束，确定位置，在CustomXYLayoutEditPolicy类中获得Rectangle实例后重新设置
+	private String objName;//将ComponentModel加入ContentsModel时设置
 	
 	public static final String P_CONSTRAINT = "_constraint";//通过字符串来辨识改变的属性种类
 
@@ -49,7 +48,6 @@ public class ComponentModel extends AbstractModel{
 	public void setObjName(String objName) {
 		this.objName = objName;
 	}
-
 
 	public void addSourceConnection(Object connx) {//添加输入
 		sourceConnection.add(connx);

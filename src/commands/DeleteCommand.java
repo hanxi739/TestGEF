@@ -33,7 +33,7 @@ public class DeleteCommand extends Command {
 			AbstractConnectionModel model = (AbstractConnectionModel)sourceConnections.get(i);
 			model.detachSource();
 			model.detachTarget();			
-			System.out.println("作为source的连接模型"+model+"已删除");
+			//System.out.println("作为source的连接模型"+model+"已删除");
 			
 		}
 		//删除该模型对象作为target节点对应的所有连接的头端和尾端
@@ -42,7 +42,7 @@ public class DeleteCommand extends Command {
 			AbstractConnectionModel model = (AbstractConnectionModel)targetConnections.get(i);
 			model.detachSource();
 			model.detachTarget();
-			System.out.println("作为target的连接模型"+model+"已删除");
+			//System.out.println("作为target的连接模型"+model+"已删除");
 		}
 		contentsModel.removeChild(helloModel);//删除模型
 	}

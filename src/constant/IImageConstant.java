@@ -11,7 +11,9 @@ public interface IImageConstant {
     
     public static final String COMPONENTS_XML= "F:\\projects\\eclipseRCP\\components.xml";
     
-    public static final String EDITORBG= "F:\\projects\\eclipseRCP\\testGEFv5.0\\icons\\editorBackground3.jpg";
+    public static final String EDITORBG= "F:\\projects\\eclipseRCP\\testGEFv5.2\\icons\\editorBackground3.jpg";
     
-    public static final String lABELBG= "F:\\projects\\eclipseRCP\\testGEFv5.0\\icons\\editorBackground1.jpg";
+    public static final String lABELBG= "F:\\projects\\eclipseRCP\\testGEFv5.2\\icons\\editorBackground1.jpg";
+    
+    public String filePath = null;
 }

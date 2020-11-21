@@ -1,6 +1,8 @@
 package model;
 
-public class Parameter {
+import java.io.Serializable;
+
+public class Parameter implements Serializable{
 
 	private String name;
 	private String value;

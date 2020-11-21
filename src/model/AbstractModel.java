@@ -2,6 +2,7 @@ package model;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.io.Serializable;
 
 import org.eclipse.ui.views.properties.IPropertyDescriptor;
 import org.eclipse.ui.views.properties.IPropertySource;
@@ -22,7 +23,7 @@ import org.eclipse.ui.views.properties.IPropertySource;
 
 
 //用属性视图来对应于所有的图形模型，让AbstractModel来实现IPropertySource接口，并重载这个接口中的方法
-public class AbstractModel implements IPropertySource{
+public class AbstractModel implements IPropertySource,Serializable{
 
 	//listeners列表
 	private PropertyChangeSupport listeners = new PropertyChangeSupport(this);

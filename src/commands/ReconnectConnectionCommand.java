@@ -26,7 +26,7 @@ public class ReconnectConnectionCommand extends Command {
 	public void execute() {
 		connection.attachSource();
 		connection.attachTarget();
-		System.out.println("执行时"+connection+"的新target是:"+connection.getTarget());
+		//System.out.println("执行时"+connection+"的新target是:"+connection.getTarget());
 	}
 	
 	//在一个policy中一般先执行以下的设置操作，然后执行execute()方法
@@ -50,8 +50,8 @@ public class ReconnectConnectionCommand extends Command {
 		newSource = connection.getSource();//新的头端不变
 		newTarget = (ComponentModel)model;
 		connection.setTarget(newTarget);//设置新target
-		System.out.println(connection+"的新target是:"+connection.getTarget());
-		System.out.println(connection+"的新target是:"+newTarget);
+		//System.out.println(connection+"的新target是:"+connection.getTarget());
+		//System.out.println(connection+"的新target是:"+newTarget);
 	}
 	
 	//撤销连接：撤销起点和撤销终点。还没有梳理好逻辑，没有实现，先抓紧核心功能实现

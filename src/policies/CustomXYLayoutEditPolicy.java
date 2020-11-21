@@ -18,8 +18,8 @@ public class CustomXYLayoutEditPolicy extends XYLayoutEditPolicy {
 	protected Command getCreateCommand(CreateRequest request) {//这里有CreateRequest，所以在这里调用创建模型的CreateCommand
 		CreateCommand command = new CreateCommand();
 		Rectangle constraint = (Rectangle)getConstraintFor(request);//产生创建图形的尺寸和位置
+		constraint.setSize(250,80);
 		ComponentModel model = (ComponentModel) request.getNewObject();//获得新创建的图形 
-		Object type = request.getNewObjectType();
 		model.setConstraint(constraint);//为该图形设置前面获得的位置和尺寸
 		
 		//将新创建的图形添加到模型中
@@ -29,13 +29,14 @@ public class CustomXYLayoutEditPolicy extends XYLayoutEditPolicy {
 		return command;/*因为我们在模型类中添加了监听器，并且将模型的改变通知给了其EditPart，EditPart收到事件后会知道属性发生了改变，所以执行了refreshVisuals操作，Graphical Editor中的图形也会发生改变*/
 	}
 	
+	/*
 	
 	//重载getCommand方法，在控制台输出拖动句柄和拖动图形时的请求
 	public Command getCommand(Request request) {
 		System.out.println(request.getType());
 		return super.getCommand(request);
 	}
-
+*/
 	
 	/*
 	 * 创建了commands.ChangeConstraintCommand，就要在EditingPolicy的框架下运行命令了。

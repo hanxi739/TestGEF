@@ -12,14 +12,15 @@ import org.eclipse.ui.actions.ActionFactory.IWorkbenchAction;
 import org.eclipse.ui.application.ActionBarAdvisor;
 import org.eclipse.ui.application.IActionBarConfigurer;
 
-import action.DiagramAction;
+import action.NewDiagramAction;
+import action.OpenDiagramAction;
 
 public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 	
 	 private IWorkbenchAction exitAction;
 	 private IWorkbenchAction aboutAction;
-	 private DiagramAction diagramAction;
-
+	 private NewDiagramAction newDiagramAction;
+	 private OpenDiagramAction openDiagramAction;
 
 	public ApplicationActionBarAdvisor(IActionBarConfigurer configurer) {
 		super(configurer);
@@ -33,16 +34,22 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
         aboutAction = ActionFactory.ABOUT.create(window);
         register(aboutAction);
         
-        diagramAction = new DiagramAction(window);
-        register(diagramAction);
+        newDiagramAction = new NewDiagramAction(window);
+        register(newDiagramAction);
+        
+        openDiagramAction = new OpenDiagramAction(window);
+        register(openDiagramAction);
+        
 	}
 	
 	@Override
 	protected void fillMenuBar(IMenuManager menuBar) {
 		MenuManager fileMenu = new MenuManager("&File", "File");
-        fileMenu.add(diagramAction);
+        fileMenu.add(newDiagramAction);
+        fileMenu.add(openDiagramAction);
         fileMenu.add(new Separator());
         fileMenu.add(exitAction);
+        
         
         MenuManager helpMenu = new MenuManager("&Help", "help");
         helpMenu.add(aboutAction);

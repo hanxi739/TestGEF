@@ -1,6 +1,8 @@
 package model;
 
-public class Property {
+import java.io.Serializable;
+
+public class Property implements Serializable{
 
 	private String name;
 	private String value;

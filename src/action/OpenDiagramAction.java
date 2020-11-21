@@ -1,5 +1,5 @@
 package action;
-//创建action DiagramAction
+
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.viewers.ISelection;
@@ -20,26 +20,18 @@ import testgef.Application;
 import view.DiagramEditor;
 import view.DiagramEditorInput;
 
-public class DiagramAction extends Action implements ISelectionListener,IWorkbenchAction {
-	
+public class OpenDiagramAction extends Action implements ISelectionListener,IWorkbenchAction{
 	private final IWorkbenchWindow window ;
-	public final static String ID = "testGEF.action.DiagramAction";
+	public final static String ID = "testGEF.action.OpenDiagramAction";
 	private IStructuredSelection selection;
 	
-	public DiagramAction(IWorkbenchWindow window) {
+	public OpenDiagramAction(IWorkbenchWindow window) {
 	        this.window = window;
 	        setId(ID);
-	        setText("&Diagram");
-	        setToolTipText("Draw the GEF diagram.");
+	        setText("Open Diagram");
+	        setToolTipText("Open a waveform diagram.");
 	        setImageDescriptor(AbstractUIPlugin.imageDescriptorFromPlugin(Application.PLUGIN_ID, IImageConstant.EDITORTITLE));
 	        window.getSelectionService().addSelectionListener(this);
-	}
-
-	 
-	@Override
-	public void selectionChanged(IWorkbenchPart part, ISelection selection) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
@@ -47,16 +39,25 @@ public class DiagramAction extends Action implements ISelectionListener,IWorkben
 		window.getSelectionService().removeSelectionListener(this);
 		
 	}
+
+	@Override
+	public void selectionChanged(IWorkbenchPart part, ISelection selection) {
+		// TODO Auto-generated method stub
+		
+	}
 	
 	private String openFileDialog() {
         FileDialog dialog = new FileDialog(window.getShell(), SWT.OPEN);
-        dialog.setText("GEF文件");
-        dialog.setFilterExtensions(new String[] { ".diagram" });
+        dialog.setText("打开波形文件");
+        //dialog.setFilterExtensions(new String[] { ".diagram" });
         return dialog.open();
     }
 	
 	public void run() {
         String path = openFileDialog();
+        DiagramEditor.saveFilePath = path;
+        DiagramEditor.openFile = true;
+        System.out.println("open path："+path);
         if (path != null) {
             IEditorInput input = new DiagramEditorInput(new Path(path));
             IWorkbenchPage page = window.getActivePage();
